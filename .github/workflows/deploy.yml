@@ -31,6 +31,18 @@ jobs:
         run: npm ci || npm install
       - name: Build
         run: GH_PAGES=1 npm run build
+      - name: Show dist contents
+        run: |
+          echo '--- dist index.html (head) ---'
+          sed -n '1,120p' dist/index.html
+          echo '--- dist assets ---'
+          ls -R dist
+      - name: Verify build transformation
+        run: |
+          if grep -q "/src/main.tsx" dist/index.html; then
+            echo "ERROR: Vite did not transform entry. Build likely failed earlier." >&2
+            exit 1
+          fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
