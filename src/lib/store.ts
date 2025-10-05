@@ -28,7 +28,13 @@ function loadInitial(): Trade[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return [];
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed)) return [];
+    return parsed.map((t:any)=> ({
+      ...t,
+      year: t.year ?? (t.date? Number(String(t.date).slice(0,4)) : new Date().getFullYear()),
+      rMultiple: t.rMultiple ?? (t.risk ? (t.profit / t.risk) : undefined)
+    }));
   } catch { return []; }
 }
 
@@ -40,7 +46,8 @@ export const useJournal = create<JournalState>((set,get)=>({
   activeProfile: undefined,
   setActiveProfile: (p)=> set(()=> ({ activeProfile: p })),
   addTrade: (t) => set(state => {
-    const trade: Trade = { id: crypto.randomUUID(), ...t, rMultiple: (t.risk && t.risk!==0)? t.profit / t.risk : t.rMultiple };
+  const id = (crypto && 'randomUUID' in crypto) ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+  const trade: Trade = { id, ...t, rMultiple: (t.risk && t.risk!==0)? t.profit / t.risk : t.rMultiple };
     const trades = [...state.trades, trade];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
     return { trades };
