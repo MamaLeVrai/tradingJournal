@@ -7,10 +7,9 @@ declare const process: any;
 
 // IMPORTANT: change repoName if different on GitHub
 const repoName = 'tradingJournal';
-const isGhPages = process.env.GH_PAGES === '1';
 
 export default defineConfig({
   // Use repo sub-path only on GitHub Pages build
-  base: isGhPages ? `/${repoName}/` : '/',
+  base: `/${repoName}/`,
   plugins: [react()],
 });
