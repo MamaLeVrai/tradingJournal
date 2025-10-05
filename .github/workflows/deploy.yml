@@ -31,15 +31,17 @@ jobs:
         run: npm ci || npm install
       - name: Build
         run: npm run build
+      - name: Copy index as 404 for SPA
+        run: cp dist/index.html dist/404.html
       - name: Show dist contents
         run: |
           echo '--- dist index.html (head) ---'
-          sed -n '1,120p' dist/index.html
+          head -30 dist/index.html
           echo '--- dist assets ---'
-          ls -R dist
+          find dist -name "*.js" -o -name "*.css" | head -10
       - name: Verify build transformation
         run: |
-          if grep -q "/src/main.tsx" dist/index.html; then
+          if grep -q "./src/main.tsx" dist/index.html; then
             echo "ERROR: Vite did not transform entry. Build likely failed earlier." >&2
             exit 1
           fi
