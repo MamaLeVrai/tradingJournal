@@ -30,7 +30,7 @@ jobs:
       - name: Install deps
         run: npm ci || npm install
       - name: Build
-        run: GH_PAGES=1 npm run build
+        run: npm run build
       - name: Show dist contents
         run: |
           echo '--- dist index.html (head) ---'
