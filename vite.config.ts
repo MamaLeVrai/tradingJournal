@@ -6,8 +6,7 @@ import react from '@vitejs/plugin-react';
 declare const process: any;
 
 export default defineConfig({
-  // Deploying to user/organisation site (mamalevrai.github.io) => base '/'
-  // If you move to project page, change to '/tradingJournal/'
-  base: '/',
+  // Project site deployment at https://mamalevrai.github.io/tradingJournal/
+  base: '/tradingJournal/',
   plugins: [react()],
 });
