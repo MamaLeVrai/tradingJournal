@@ -31,11 +31,11 @@ npm run dev
 ```
 
 ## Déploiement GitHub Pages
-1. Crée le dépôt GitHub nommé `tradingJournal` (ou adapte `repoName` dans `vite.config.ts`).
-2. Remplace `YOUR_GITHUB_USERNAME` dans `package.json` champ `homepage`.
-3. Commit & push sur la branche `main`.
-4. L’action GitHub (`.github/workflows/deploy.yml`) build et publie automatiquement sur Pages.
-5. Dans Settings > Pages, choisis Source: GitHub Actions si pas déjà actif.
+1. Si tu déploies sur ton site utilisateur (mamalevrai.github.io), `vite.config.ts` base = '/'. (Déjà fait.)
+2. Si tu passes plus tard sur un repo projet (ex: mamalevrai/tradingJournal) remets base '/tradingJournal/'.
+3. Commit & push sur `main`.
+4. L’action GitHub publie automatiquement.
+5. Settings > Pages > Source: GitHub Actions.
 
 Déploiement manuel alternatif (branche gh-pages) :
 ```
