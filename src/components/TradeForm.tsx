@@ -8,18 +8,26 @@ const months = ['janvier','fevrier','mars','avril','mai','juin','juillet','aout'
 export const TradeForm: React.FC = () => {
   const addTrade = useJournal(s=>s.addTrade);
   const now = new Date();
-  const [form, setForm] = useState<{trader:string; asset:string; date:string; time:string; year:number; month:string; dayOfWeek:string; side:TradeSide; profit:number; capitalPct:number; risk:number; rMultiple: number | undefined; comment:string; resultLabel:'gagnant' | 'perdant'; profile?: string}>({
+  const [form, setForm] = useState<{trader:string; asset:string; date:string; time:string; year:number; month:string; dayOfWeek:string; side:TradeSide; profit:string; capitalPct:string; risk:string; rMultiple: number | undefined; comment:string; resultLabel:'gagnant' | 'perdant'; profile?: string}>({
   trader: 'moi', asset: 'XAU/USD', date: now.toISOString().slice(0,10), time: '',
     year: now.getFullYear(),
     month: months[now.getMonth()], dayOfWeek: days[now.getDay()-1] || 'lundi', side: 'BUY' as TradeSide,
-  profit: 0, capitalPct: 0, risk: 0, rMultiple: undefined, comment: '', resultLabel: 'gagnant'
+  profit: '', capitalPct: '', risk: '', rMultiple: undefined, comment: '', resultLabel: 'gagnant'
   });
 
   function submit(e: React.FormEvent){
     e.preventDefault();
-  const rMultiple = form.risk && form.risk !== 0 ? form.profit / form.risk : undefined;
-  addTrade({...form, rMultiple});
-  setForm(f=>({...f, profit:0, capitalPct:0, risk:0, rMultiple: undefined, comment:''}));
+  const profitNum = parseFloat(form.profit) || 0;
+  const riskNum = parseFloat(form.risk) || 0;
+  const rMultiple = riskNum !== 0 ? profitNum / riskNum : undefined;
+  addTrade({
+    ...form, 
+    profit: profitNum, 
+    capitalPct: parseFloat(form.capitalPct) || 0, 
+    risk: riskNum, 
+    rMultiple
+  });
+  setForm(f=>({...f, profit:'', capitalPct:'', risk:'', rMultiple: undefined, comment:''}));
   }
 
   return (
@@ -42,9 +50,9 @@ export const TradeForm: React.FC = () => {
           <option value="gagnant">gagnant</option>
           <option value="perdant">perdant</option>
         </select>
-  <input type="number" step="0.01" className="bg-neutral-800 rounded px-2 py-1 text-sm" value={form.profit} onChange={e=>setForm({...form,profit:parseFloat(e.target.value)})} placeholder="profit" />
-  <input type="number" step="0.01" className="bg-neutral-800 rounded px-2 py-1 text-sm" value={form.capitalPct} onChange={e=>setForm({...form,capitalPct:parseFloat(e.target.value)})} placeholder="% capital" />
-  <input type="number" step="0.01" className="bg-neutral-800 rounded px-2 py-1 text-sm" value={form.risk} onChange={e=>setForm({...form,risk:parseFloat(e.target.value), rMultiple: form.profit && parseFloat(e.target.value)!==0? form.profit/parseFloat(e.target.value): undefined})} placeholder="risk" />
+  <input type="number" step="0.01" className="bg-neutral-800 rounded px-2 py-1 text-sm" value={form.profit} onChange={e=>{const profitVal = parseFloat(e.target.value) || 0; const riskVal = parseFloat(form.risk) || 0; setForm({...form,profit:e.target.value, rMultiple: riskVal !== 0 ? profitVal/riskVal : undefined})}} placeholder="profit" />
+  <input type="number" step="0.01" className="bg-neutral-800 rounded px-2 py-1 text-sm" value={form.capitalPct} onChange={e=>setForm({...form,capitalPct:e.target.value})} placeholder="% capital" />
+  <input type="number" step="0.01" className="bg-neutral-800 rounded px-2 py-1 text-sm" value={form.risk} onChange={e=>{const riskVal = parseFloat(e.target.value) || 0; const profitVal = parseFloat(form.profit) || 0; setForm({...form,risk:e.target.value, rMultiple: riskVal !== 0 ? profitVal/riskVal : undefined})}} placeholder="risk" />
   <input disabled type="number" step="0.01" className="bg-neutral-950/40 rounded px-2 py-1 text-sm text-neutral-400" value={form.rMultiple ?? ''} placeholder="R" />
       </div>
       <textarea className="w-full bg-neutral-800 rounded px-2 py-1 text-sm" value={form.comment} onChange={e=>setForm({...form,comment:e.target.value})} placeholder="commentaire" />
