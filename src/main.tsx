@@ -22,4 +22,5 @@ const App = () => {
   );
 };
 
+console.log('[Journal] boot');
 createRoot(document.getElementById('root')!).render(<App />);
