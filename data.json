@@ -150,7 +150,8 @@
       "name": "compte propre fusion market",
       "initialBalance": 0.99,
       "description": "",
-      "createdAt": "2026-01-16T21:25:31.784Z"
+      "createdAt": "2026-01-16T21:25:31.784Z",
+      "archived": false
     }
   ],
   "markets": [

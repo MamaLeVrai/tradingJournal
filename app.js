@@ -726,66 +726,133 @@ class TradingJournal {
 
     displayAccounts() {
         const grid = document.getElementById('accountsGrid');
+        const archivedGrid = document.getElementById('archivedAccountsGrid');
+        const archivedSection = document.getElementById('archivedSection');
         grid.innerHTML = '';
+        archivedGrid.innerHTML = '';
 
-        if (this.accounts.length === 0) {
+        const activeAccounts = this.accounts.filter(a => !a.archived);
+        const archivedAccounts = this.accounts.filter(a => a.archived);
+
+        // Afficher les comptes actifs
+        if (activeAccounts.length === 0) {
             grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">Aucun compte enregistré</p>';
-            return;
+        } else {
+            activeAccounts.forEach(account => {
+                grid.appendChild(this.createAccountCard(account, false));
+            });
         }
 
-        this.accounts.forEach(account => {
-            // Gérer les anciens et nouveaux formats de trades
-            const accountTrades = this.trades.filter(t => {
-                // Nouveau format (account)
-                if (t.account) {
-                    return t.account === account.id;
-                }
-                // Ancien format (accounts array)
-                if (t.accounts && Array.isArray(t.accounts)) {
-                    return t.accounts.includes(account.id);
-                }
-                return false;
+        // Afficher les comptes archivés
+        if (archivedAccounts.length > 0) {
+            archivedSection.style.display = 'block';
+            document.getElementById('archivedCount').textContent = archivedAccounts.length;
+            archivedAccounts.forEach(account => {
+                archivedGrid.appendChild(this.createAccountCard(account, true));
             });
-            const totalPnL = accountTrades.reduce((sum, t) => sum + t.pnl, 0);
-            const currentBalance = account.initialBalance + totalPnL;
-
-            const card = document.createElement('div');
-            card.className = 'account-card';
-            card.onclick = () => this.openAccountModal(account.id);
-            card.style.cursor = 'pointer';
-            card.innerHTML = `
-                <div class="account-header">
-                    <div class="account-name">${account.name}</div>
-                    <div class="account-id">${account.id}</div>
-                </div>
-                <div class="account-balance">$${currentBalance.toFixed(2)}</div>
-                <div class="account-description">${account.description || 'Aucune description'}</div>
-                <div style="font-size: 0.85rem; color: var(--text-muted);">
-                    <div>Solde initial: $${account.initialBalance.toFixed(2)}</div>
-                    <div>PnL: <span class="${totalPnL >= 0 ? 'pnl-positive' : 'pnl-negative'}">$${totalPnL.toFixed(2)}</span></div>
-                    <div>Nombre de trades: ${accountTrades.length}</div>
-                </div>
-                <div class="account-actions">
-                    <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); journal.editAccount('${account.id}')" style="margin-right: 5px;">Modifier</button>
-                    <button class="btn btn-danger btn-small" onclick="event.stopPropagation(); journal.deleteAccount('${account.id}')">Supprimer</button>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
+        } else {
+            archivedSection.style.display = 'none';
+        }
 
         // Mettre à jour le select du formulaire de trade
         this.updateAccountSelect();
     }
 
+    toggleArchivedAccounts() {
+        const archivedGrid = document.getElementById('archivedAccountsGrid');
+        const toggleIcon = document.getElementById('archivedToggleIcon');
+        
+        if (archivedGrid.style.display === 'none') {
+            archivedGrid.style.display = 'grid';
+            toggleIcon.textContent = '▲';
+        } else {
+            archivedGrid.style.display = 'none';
+            toggleIcon.textContent = '▼';
+        }
+    }
+
+    createAccountCard(account, isArchived) {
+        // Gérer les anciens et nouveaux formats de trades
+        const accountTrades = this.trades.filter(t => {
+            // Nouveau format (account)
+            if (t.account) {
+                return t.account === account.id;
+            }
+            // Ancien format (accounts array)
+            if (t.accounts && Array.isArray(t.accounts)) {
+                return t.accounts.includes(account.id);
+            }
+            return false;
+        });
+        const totalPnL = accountTrades.reduce((sum, t) => sum + t.pnl, 0);
+        const currentBalance = account.initialBalance + totalPnL;
+
+        const card = document.createElement('div');
+        card.className = 'account-card';
+        if (isArchived) {
+            card.style.opacity = '0.6';
+            card.style.filter = 'grayscale(0.5)';
+        }
+        card.onclick = () => this.openAccountModal(account.id);
+        card.style.cursor = 'pointer';
+        
+        const archiveButton = isArchived 
+            ? `<button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); journal.unarchiveAccount('${account.id}')" style="margin-right: 5px;">Désarchiver</button>`
+            : `<button class="btn btn-small" onclick="event.stopPropagation(); journal.archiveAccount('${account.id}')" style="margin-right: 5px; background: #ff9800; color: white;">Archiver</button>`;
+        
+        card.innerHTML = `
+            <div class="account-header">
+                <div class="account-name">${isArchived ? '📦 ' : ''}${account.name}</div>
+                <div class="account-id">${account.id}</div>
+            </div>
+            <div class="account-balance">$${currentBalance.toFixed(2)}</div>
+            <div class="account-description">${account.description || 'Aucune description'}</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                <div>Solde initial: $${account.initialBalance.toFixed(2)}</div>
+                <div>PnL: <span class="${totalPnL >= 0 ? 'pnl-positive' : 'pnl-negative'}">$${totalPnL.toFixed(2)}</span></div>
+                <div>Nombre de trades: ${accountTrades.length}</div>
+            </div>
+            <div class="account-actions">
+                ${!isArchived ? `<button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); journal.editAccount('${account.id}')" style="margin-right: 5px;">Modifier</button>` : ''}
+                ${archiveButton}
+                <button class="btn btn-danger btn-small" onclick="event.stopPropagation(); journal.deleteAccount('${account.id}')">Supprimer</button>
+            </div>
+        `;
+        return card;
+    }
+
     updateAccountSelect() {
         const select = document.getElementById('tradeAccounts');
         select.innerHTML = '';
-        this.accounts.forEach(account => {
+        const activeAccounts = this.accounts.filter(a => !a.archived);
+        activeAccounts.forEach(account => {
             const option = document.createElement('option');
             option.value = account.id;
             option.textContent = `${account.name} (${account.id})`;
             select.appendChild(option);
         });
+    }
+
+    archiveAccount(id) {
+        if (confirm('Archiver ce compte? Il ne sera plus visible dans la liste active mais les données seront conservées.')) {
+            const account = this.accounts.find(a => a.id === id);
+            if (account) {
+                account.archived = true;
+                this.saveAllData();
+                this.refreshUI();
+                this.showNotification('Compte archivé', 'success');
+            }
+        }
+    }
+
+    unarchiveAccount(id) {
+        const account = this.accounts.find(a => a.id === id);
+        if (account) {
+            account.archived = false;
+            this.saveAllData();
+            this.refreshUI();
+            this.showNotification('Compte désarchivé', 'success');
+        }
     }
 
     // =======================

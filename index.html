@@ -154,6 +154,16 @@
             <div class="accounts-grid" id="accountsGrid">
                 <!-- Les comptes seront ajoutés ici -->
             </div>
+
+            <div id="archivedSection" style="margin-top: 50px; display: none;">
+                <button onclick="journal.toggleArchivedAccounts()" class="btn" style="background: var(--border-color); color: var(--text-light); width: 100%; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>📦 Comptes Archivés (<span id="archivedCount">0</span>)</span>
+                    <span id="archivedToggleIcon">▼</span>
+                </button>
+                <div id="archivedAccountsGrid" class="accounts-grid" style="display: none;">
+                    <!-- Les comptes archivés seront ajoutés ici -->
+                </div>
+            </div>
         </div>
 
         <!-- Onglet 3: Performance -->
