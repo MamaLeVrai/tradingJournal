@@ -1,14 +1,383 @@
-<!doctype html>
-<html lang="fr" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Journal de Trading 2025</title>
-    <meta name="description" content="Journal de trading personnel avec statistiques et graphiques." />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  </head>
-  <body class="bg-neutral-950 text-neutral-100 min-h-screen font-sans">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal de Trading</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Journal de Trading</h1>
+        </header>
+
+        <!-- Navigation des onglets -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="trades">Mes Trades</button>
+            <button class="tab-btn" data-tab="accounts">Comptes</button>
+            <button class="tab-btn" data-tab="performance">Performance</button>
+            <button class="tab-btn" data-tab="settings">Réglages</button>
+        </nav>
+
+        <!-- Onglet 1: Mes Trades -->
+        <div id="trades" class="tab-content active">
+            <h2>Enregistrer un Trade</h2>
+            <form id="tradeForm" class="trade-form">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="tradeAccounts">Comptes (maintenir Ctrl pour sélectionner plusieurs):</label>
+                        <select id="tradeAccounts" multiple required style="min-height: 80px;">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tradeMarket">Marché:</label>
+                        <select id="tradeMarket" required>
+                            <option value="">Sélectionner un marché</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tradeType">Type:</label>
+                        <select id="tradeType" required>
+                            <option value="BUY">BUY</option>
+                            <option value="SELL">SELL</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tradeTrader">Trader:</label>
+                        <select id="tradeTrader" required>
+                            <option value="">Sélectionner un trader</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tradeDate">Date:</label>
+                        <input type="date" id="tradeDate" required>
+                    </div>
+                </div>
+
+                <div id="accountSpecificFields" style="display: none;">
+                    <h3 style="color: var(--accent-teal); margin-top: 20px; margin-bottom: 15px;">Données spécifiques par compte</h3>
+                    <div id="accountFieldsContainer"></div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tradeResult">Résultat:</label>
+                        <select id="tradeResult" required>
+                            <option value="TP">TP (Take Profit)</option>
+                            <option value="SL">SL (Stop Loss)</option>
+                            <option value="BE">BE (Break Even)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="tradeNotes">Notes:</label>
+                        <textarea id="tradeNotes" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="submit" class="btn btn-primary" id="tradeFormSubmitBtn">Enregistrer le Trade</button>
+                    <button type="button" class="btn" id="tradeCancelEditBtn" style="display: none; background: var(--border-color); color: var(--text-light);" onclick="journal.cancelEdit()">Annuler</button>
+                    <span id="tradeEditingLabel" style="display: none; color: var(--accent-teal); font-weight: 600;">✏️ Mode édition</span>
+                </div>
+            </form>
+
+            <h2>Historique des Trades</h2>
+            <div class="table-container">
+                <table id="tradesTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Comptes</th>
+                            <th>Marché</th>
+                            <th>Type</th>
+                            <th>% Risque</th>
+                            <th>% Gain/Perte</th>
+                            <th>RR</th>
+                            <th>Résultat</th>
+                            <th>PnL ($)</th>
+                            <th>Commission ($)</th>
+                            <th>Trader</th>
+                            <th style="width: 180px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradesTableBody">
+                        <!-- Les trades seront ajoutés ici -->
+                    </tbody>
+                    <tfoot id="tradesTableFooter" style="font-weight: bold; background: var(--secondary-bg); border-top: 2px solid var(--accent-red);">
+                        <!-- Le total sera ajouté ici -->
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Onglet 2: Comptes -->
+        <div id="accounts" class="tab-content">
+            <h2>Ajouter un Compte</h2>
+            <form id="accountForm" class="account-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="accountId">ID de Compte:</label>
+                        <input type="text" id="accountId" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountName">Nom:</label>
+                        <input type="text" id="accountName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountBalance">Solde Initial ($):</label>
+                        <input type="number" id="accountBalance" step="0.01" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="accountDescription">Description:</label>
+                        <textarea id="accountDescription" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="submit" class="btn btn-primary" id="accountFormSubmitBtn">Ajouter le Compte</button>
+                    <button type="button" class="btn" id="accountCancelEditBtn" style="display: none; background: var(--border-color); color: var(--text-light);" onclick="journal.cancelAccountEdit()">Annuler</button>
+                    <span id="accountEditingLabel" style="display: none; color: var(--accent-teal); font-weight: 600;">✏️ Mode édition</span>
+                </div>
+            </form>
+
+            <h2>Mes Comptes</h2>
+            <div class="accounts-grid" id="accountsGrid">
+                <!-- Les comptes seront ajoutés ici -->
+            </div>
+        </div>
+
+        <!-- Onglet 3: Performance -->
+        <div id="performance" class="tab-content">
+            <h2>Performance Globale</h2>
+            
+            <!-- Filtres -->
+            <div class="filters-section">
+                <h3>Filtres</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label for="filterAccount">Compte:</label>
+                        <select id="filterAccount">
+                            <option value="">Tous les comptes</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterMarket">Marché:</label>
+                        <select id="filterMarket">
+                            <option value="">Tous les marchés</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterType">Type d'ordre:</label>
+                        <select id="filterType">
+                            <option value="">Tous</option>
+                            <option value="BUY">BUY</option>
+                            <option value="SELL">SELL</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterResult">Résultat:</label>
+                        <select id="filterResult">
+                            <option value="">Tous</option>
+                            <option value="TP">TP</option>
+                            <option value="SL">SL</option>
+                            <option value="BE">BE</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterDateFrom">Date de début:</label>
+                        <input type="date" id="filterDateFrom">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterDateTo">Date de fin:</label>
+                        <input type="date" id="filterDateTo">
+                    </div>
+                </div>
+
+                <div class="filters-actions">
+                    <button class="btn btn-small btn-secondary" onclick="journal.applyQuickFilter('week')">Cette Semaine</button>
+                    <button class="btn btn-small btn-secondary" onclick="journal.applyQuickFilter('month')">Ce Mois</button>
+                    <button class="btn btn-small btn-secondary" onclick="journal.applyQuickFilter('year')">Cette Année</button>
+                    <button class="btn btn-small btn-primary" onclick="journal.applyFilters()">Appliquer les Filtres</button>
+                    <button class="btn btn-small" onclick="journal.resetFilters()" style="background: #3d2667; color: var(--text-light);">Réinitialiser</button>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">PnL Cumulé</div>
+                    <div class="stat-value" id="totalPnL">$0.00</div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-label">Trades Gagnants</div>
+                    <div class="stat-value" id="winningTrades">0</div>
+                </div>
+
+                <div class="stat-card danger">
+                    <div class="stat-label">Trades Perdants</div>
+                    <div class="stat-value" id="losingTrades">0</div>
+                </div>
+
+                <div class="stat-card neutral">
+                    <div class="stat-label">Trades Nuls (BE)</div>
+                    <div class="stat-value" id="breakEvenTrades">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Win Rate</div>
+                    <div class="stat-value" id="winRate">0%</div>
+                    <div class="stat-note">Basé sur SL et TP uniquement</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">RR Moyen</div>
+                    <div class="stat-value" id="avgRR">0</div>
+                </div>
+
+                <div class="stat-card danger">
+                    <div class="stat-label">Total Commissions</div>
+                    <div class="stat-value" id="totalCommissions">$0.00</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Total Trades</div>
+                    <div class="stat-value" id="totalTrades">0</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Évolution du PnL ($)</h3>
+                    <canvas id="pnlEvolutionChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Répartition des Gains</h3>
+                    <canvas id="profitDistributionChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Répartition BUY / SELL</h3>
+                    <canvas id="buySellChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Résultats par Jour de la Semaine ($)</h3>
+                    <canvas id="dayOfWeekChart"></canvas>
+                </div>
+
+                <div class="chart-container full-width">
+                    <h3>Gains / Pertes par Marché ($)</h3>
+                    <canvas id="marketPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet 4: Réglages -->
+        <div id="settings" class="tab-content">
+            <h2>Réglages</h2>
+
+            <div class="settings-section">
+                <h3>Marchés Tradés</h3>
+                <div class="settings-form">
+                    <input type="text" id="newMarket" placeholder="Ex: EUR/USD, BTC/USD, GOLD">
+                    <button class="btn btn-primary" onclick="addMarket()">Ajouter</button>
+                </div>
+                <div class="tags-container" id="marketsList">
+                    <!-- Les marchés seront ajoutés ici -->
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Traders</h3>
+                <div class="settings-form">
+                    <input type="text" id="newTrader" placeholder="Ex: Marius, Jean">
+                    <button class="btn btn-primary" onclick="addTrader()">Ajouter</button>
+                </div>
+                <div class="tags-container" id="tradersList">
+                    <!-- Les traders seront ajoutés ici -->
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Données</h3>
+                <button class="btn btn-danger" onclick="exportData()">Exporter les Données (JSON)</button>
+                <button class="btn btn-secondary" onclick="importData()">Importer les Données</button>
+                <input type="file" id="importFile" style="display: none;" accept=".json">
+                <button class="btn btn-danger" onclick="clearAllData()" style="margin-top: 10px;">Effacer Toutes les Données</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale de détails du compte -->
+    <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalAccountTitle">Détails — Compte</h2>
+                <button class="modal-close" onclick="journal.closeAccountModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="modal-chart-container">
+                    <canvas id="accountEvolutionChart"></canvas>
+                </div>
+
+                <div class="modal-info">
+                    <div class="modal-balance">
+                        <span class="modal-label">Solde initial</span>
+                        <span class="modal-value" id="modalInitialBalance">$0.00</span>
+                    </div>
+                    <div class="modal-created">
+                        <span class="modal-icon">📅</span>
+                        <span id="modalCreatedDate">Créé le --</span>
+                    </div>
+                </div>
+
+                <div class="modal-description">
+                    <div class="modal-section-title">
+                        <span>☰</span>
+                        DESCRIPTION
+                    </div>
+                    <p id="modalDescription" class="modal-description-text">Aucune description fournie.</p>
+                </div>
+
+                <div class="modal-stats">
+                    <div class="modal-stat-card">
+                        <div class="modal-stat-label">TRADES</div>
+                        <div class="modal-stat-value" id="modalTotalTrades">0</div>
+                    </div>
+                    <div class="modal-stat-card perte">
+                        <div class="modal-stat-label">PERTE</div>
+                        <div class="modal-stat-value" id="modalTotalLoss">$0.00</div>
+                    </div>
+                    <div class="modal-stat-card gain">
+                        <div class="modal-stat-label">GAIN</div>
+                        <div class="modal-stat-value" id="modalTotalGain">$0.00</div>
+                    </div>
+                    <div class="modal-stat-card actuel">
+                        <div class="modal-stat-label">SOLDE ACTUEL</div>
+                        <div class="modal-stat-value" id="modalCurrentBalance">$0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
 </html>

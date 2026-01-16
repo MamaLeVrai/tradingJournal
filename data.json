@@ -1,0 +1,169 @@
+{
+  "trades": [
+    {
+      "id": 1768598783472,
+      "accounts": [
+        "892094"
+      ],
+      "market": "AUD/USD",
+      "type": "SELL",
+      "trader": "Marius",
+      "date": "2026-01-05",
+      "riskPercent": 1,
+      "profitPercent": 0,
+      "rr": 0,
+      "result": "BE",
+      "pnl": 15.08,
+      "commission": 126.81,
+      "notes": ""
+    },
+    {
+      "id": 1768599142375,
+      "accounts": [
+        "892094"
+      ],
+      "market": "XAU/USD",
+      "type": "BUY",
+      "trader": "Olinvest",
+      "date": "2026-01-05",
+      "riskPercent": 0.16,
+      "profitPercent": 3.6,
+      "rr": 23.82,
+      "result": "TP",
+      "pnl": 900.4,
+      "notes": ""
+    },
+    {
+      "id": 1768599252616,
+      "accounts": [
+        "892094"
+      ],
+      "market": "XAU/USD",
+      "type": "SELL",
+      "trader": "Olinvest",
+      "date": "2026-01-07",
+      "riskPercent": 0.75,
+      "profitPercent": 0,
+      "rr": 0,
+      "result": "BE",
+      "pnl": 0,
+      "notes": ""
+    },
+    {
+      "id": 1768599277250,
+      "accounts": [
+        "892094"
+      ],
+      "market": "XAU/USD",
+      "type": "SELL",
+      "trader": "Olinvest",
+      "date": "2026-01-08",
+      "riskPercent": 0.75,
+      "profitPercent": 0,
+      "rr": 0,
+      "result": "BE",
+      "pnl": 0,
+      "notes": ""
+    },
+    {
+      "id": 1768599345943,
+      "accounts": [
+        "892094"
+      ],
+      "market": "EUR/JPY",
+      "type": "SELL",
+      "trader": "Marius",
+      "date": "2026-01-09",
+      "riskPercent": 0.49,
+      "profitPercent": -0.49,
+      "rr": -1,
+      "result": "SL",
+      "pnl": -133.59,
+      "notes": ""
+    },
+    {
+      "id": 1768599426720,
+      "accounts": [
+        "892094"
+      ],
+      "market": "CHF/JPY",
+      "type": "SELL",
+      "trader": "Marius",
+      "date": "2026-01-13",
+      "riskPercent": 1,
+      "profitPercent": -1.065,
+      "rr": -1,
+      "result": "SL",
+      "pnl": -266.47,
+      "notes": ""
+    },
+    {
+      "id": 1768599578980,
+      "accounts": [
+        "892094"
+      ],
+      "market": "CAD/CHF",
+      "type": "BUY",
+      "trader": "Marius",
+      "date": "2026-01-14",
+      "riskPercent": 0.71,
+      "profitPercent": -0.71,
+      "rr": -1,
+      "result": "SL",
+      "pnl": -178.26,
+      "notes": ""
+    },
+    {
+      "id": 1768603130769.4612,
+      "groupId": 1768603036048,
+      "account": "892094",
+      "market": "CAD/CHF",
+      "type": "BUY",
+      "trader": "Marius",
+      "date": "2026-01-14",
+      "riskPercent": 0.46,
+      "profitPercent": -0.465,
+      "rr": -1,
+      "result": "SL",
+      "pnl": -116.33,
+      "commission": 0,
+      "notes": ""
+    }
+  ],
+  "accounts": [
+    {
+      "id": "892094",
+      "name": "25K BBF",
+      "initialBalance": 23315.15,
+      "description": "",
+      "createdAt": "2026-01-16T20:55:18.359Z"
+    },
+    {
+      "id": "930712",
+      "name": "10K BBF ",
+      "initialBalance": 10000,
+      "description": "celui offert par Didier",
+      "createdAt": "2026-01-16T20:56:07.760Z"
+    },
+    {
+      "id": "317205",
+      "name": "compte propre fusion market",
+      "initialBalance": 0.99,
+      "description": "",
+      "createdAt": "2026-01-16T21:25:31.784Z"
+    }
+  ],
+  "markets": [
+    "CAD/CHF",
+    "AUD/USD",
+    "XAU/USD",
+    "EUR/JPY",
+    "CHF/JPY",
+    "NZD/CHF"
+  ],
+  "traders": [
+    "Marius",
+    "Louis",
+    "Olinvest"
+  ]
+}
